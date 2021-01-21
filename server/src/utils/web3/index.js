@@ -63,11 +63,11 @@ const createNetwork = (bridgeType, account) => {
 
 const getMethodName = (method) => method ? get(method, 'methodName', 'unknown') : 'raw'
 
-const getGasPrice = async (bridgeType, web3) => {
+const getGasPrice = async (bridgeType, web3, gasSpeed) => {
   if (config.has(`network.${bridgeType}.gasPrice`)) {
     return config.get(`network.${bridgeType}.gasPrice`)
   }
-  const gasPrice = await fetchGasPrice()
+  const gasPrice = await fetchGasPrice(gasSpeed)
   return web3.utils.toWei(gasPrice.toString(), 'gwei')
 }
 
@@ -159,7 +159,7 @@ const send = async ({ web3, bridgeType, address }, method, options, handlers) =>
 
   const from = address
   const gas = await estimateGas()
-  const gasPrice = await getGasPrice(bridgeType, web3)
+  const gasPrice = await getGasPrice(bridgeType, web3, options.gasSpeed)
   const account = await Account.findOne({ address })
   for (let i = 0; i < retries; i++) {
     const response = await doSend(i) || {}
